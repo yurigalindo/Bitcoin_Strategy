@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from source.models.parent_class import BuySellModel
+from source.models.abstract_classes import BuySellModel
 
 class BacktestTradeModels():
     def __init__(self,csv: str, start_date = None, end_date = None):

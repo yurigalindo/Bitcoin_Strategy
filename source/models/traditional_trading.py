@@ -1,5 +1,5 @@
-from source.models.parent_class import BuySellModel
-from source.models.parent_class import Signal
+from source.models.abstract_classes import BuySellModel
+from source.models.abstract_classes import Signal
 
 class BuyAtSellAt(BuySellModel):
     def __init__(self,buy_price=40_000,sell_price=60_000) -> None:

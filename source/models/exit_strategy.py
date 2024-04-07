@@ -1,5 +1,5 @@
-from source.models.parent_class import BuySellModel
-from source.models.parent_class import Signal
+from source.models.abstract_classes import BuySellModel
+from source.models.abstract_classes import Signal
 
 class TrailLoss(BuySellModel):
     def __init__(self,ratio_tolerance: float,ratio_sell: float,threshold: float = None,when_to_buy: float = 0.33):
