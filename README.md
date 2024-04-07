@@ -6,9 +6,9 @@ My goal is to practice software architecture and design, and OOP in python.
 Disclaimer: this is not an endorsement of cryptocurrency or any trading strategy, just programming practice. Following any of these strategies may result in financial loss.
 
 ## Roadmap
+~~Implement 2 traditional trading strategies~~
+~~Compare using various parameters~~
 
-    1. Implement 2 traditional trading strategies
-    2. Compare using various parameters
     3. Implement 3 machine learning models
     4. Compare using various parameters
     5. Make real-time decisions by making API calls 
