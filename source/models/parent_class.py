@@ -2,6 +2,7 @@ from abc import ABC,abstractmethod
 from enum import Enum
 
 STARTING_MONEY = 100
+NEGATIVE_TOLERANCE = -1E-7
 
 class Signal(Enum):
     BUY = 1
@@ -44,7 +45,7 @@ class BuySellModel(ABC):
     
     @usd.setter
     def usd(self,new_usd: float):
-        if new_usd< 0:
+        if new_usd < NEGATIVE_TOLERANCE:
             raise ValueError(f"Can't set negative value {new_usd} for dollar reserve")
         self._usd = new_usd
         
@@ -54,7 +55,7 @@ class BuySellModel(ABC):
     
     @btc.setter
     def btc(self,new_btc: float):
-        if new_btc< 0:
+        if new_btc < NEGATIVE_TOLERANCE:
             raise ValueError(f"Can't set negative value {new_btc} for bitcoin allocation")
         self._btc = new_btc
         
