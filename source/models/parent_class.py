@@ -1,4 +1,5 @@
 from abc import ABC,abstractmethod
+from pandas import DataFrame
 from enum import Enum
 
 STARTING_MONEY = 100
@@ -17,15 +18,21 @@ class BuySellModel(ABC):
         self.btc = 0
 
     def update_reserves(self, trade:float, price:float) -> None:
+        """"Updates usd and btc amount
+        """
         self.usd -= trade*price
         self.btc += trade
 
     def run_model(self, price: float) -> None:
+        """"Obtains signal, uses the signal to make a trade, and updates reserves
+        """
         signal = self.trade_signal(price)
         trade = self.trade_order(signal, price)
         self.update_reserves(trade,price)
 
     def reset_model(self) -> None:
+        """Resets model to re-start trading from scratch
+        """
         self.usd = STARTING_MONEY
         self.btc = 0
 
@@ -59,3 +66,21 @@ class BuySellModel(ABC):
             raise ValueError(f"Can't set negative value {new_btc} for bitcoin allocation")
         self._btc = new_btc
         
+class MachineLearningModel(BuySellModel):
+    """Base class for trading models that use Machine Learning
+    """
+    @abstractmethod
+    def train_model(training_data: DataFrame,**kwargs) -> None:
+        """Trains a machine learning model
+        """
+
+    @abstractmethod
+    def reset_training() -> None:
+        """Resets training of the model
+        """
+
+class DataPreprocessing(ABC):
+    @abstractmethod
+    def preprocess_data(data: DataFrame) -> DataFrame:
+        """Pre-processes data to add features
+        """
