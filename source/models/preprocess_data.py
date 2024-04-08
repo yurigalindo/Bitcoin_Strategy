@@ -2,11 +2,12 @@ from pandas import DataFrame
 from source.models.abstract_classes import DataPreprocessing
 
 class ComposePreprocessing(DataPreprocessing):
-    def __init__(self,steps: list = None):
+    def __init__(self,steps: list = None, drop_na: bool = True):
         if steps:
             self.steps = steps
         else:
             self.steps = []
+        self.drop_na = drop_na
 
     def add_step(self, step: DataPreprocessing):
         self.steps.append(step)
@@ -14,6 +15,8 @@ class ComposePreprocessing(DataPreprocessing):
     def preprocess_data(self, data: DataFrame) -> DataFrame:
         for step in self.steps:
             data = step(data)
+        if self.drop_na:
+            data = data.dropna()
         return data
 
 class ShiftFeatures(DataPreprocessing):
