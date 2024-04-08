@@ -1,4 +1,5 @@
 from abc import ABC,abstractmethod
+from typing import Any
 from pandas import DataFrame
 from enum import Enum
 
@@ -16,6 +17,9 @@ class BuySellModel(ABC):
     def __init__(self) -> None:
         self.usd = STARTING_MONEY
         self.btc = 0
+
+    def __call__(self, price: float) -> None:
+        return self.run_model(price)
 
     def update_reserves(self, trade:float, price:float) -> None:
         """"Updates usd and btc amount
@@ -70,7 +74,7 @@ class MachineLearningModel(BuySellModel):
     """Base class for trading models that use Machine Learning
     """
     @abstractmethod
-    def train_model(training_data: DataFrame,**kwargs) -> None:
+    def train_model(self, training_data: DataFrame,**kwargs) -> None:
         """Trains a machine learning model
         """
 
@@ -81,6 +85,9 @@ class MachineLearningModel(BuySellModel):
 
 class DataPreprocessing(ABC):
     @abstractmethod
-    def preprocess_data(data: DataFrame) -> DataFrame:
+    def preprocess_data(self, data: DataFrame) -> DataFrame:
         """Pre-processes data to add features
         """
+
+    def __call__(self, data: DataFrame) -> DataFrame:
+        return self.preprocess_data(data)
