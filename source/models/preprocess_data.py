@@ -17,13 +17,25 @@ class ComposePreprocessing(DataPreprocessing):
         return data
 
 class ShiftFeatures(DataPreprocessing):
-    def __init__(self, shifts: list, column_to_shift: str = 'Open', drop_na:bool = True):
+    def __init__(self, shifts: list, column: str = 'Open', drop_na: bool = False):
         self.shifts = shifts
-        self.column_to_shift = column_to_shift
+        self.column = column
         self.drop_na = drop_na
     def preprocess_data(self, data: DataFrame) -> DataFrame:
         for shift in self.shifts:
-            data[f'{self.column_to_shift}_{shift}'] = data[self.column_to_shift].shift(shift) 
+            data[f'{self.column}_{shift}'] = data[self.column].shift(shift) 
+        if self.drop_na:
+            data = data.dropna()
+        return data
+    
+class RollingMean(DataPreprocessing):
+    def __init__(self, day_lengths: list, column: str = 'Open', drop_na: bool = False):
+        self.lengths = day_lengths
+        self.column = column
+        self.drop_na = drop_na
+    def preprocess_data(self, data: DataFrame) -> DataFrame:
+        for length in self.lengths:
+            data[f'{self.column}_{length}_mean'] = data[self.column].rolling(length).mean()
         if self.drop_na:
             data = data.dropna()
         return data
