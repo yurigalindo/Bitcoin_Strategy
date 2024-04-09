@@ -5,6 +5,7 @@ from enum import Enum
 
 STARTING_MONEY = 100
 NEGATIVE_TOLERANCE = -1E-7
+PRICE_COLUMN = 'Open'
 
 class Signal(Enum):
     BUY = 1
@@ -32,18 +33,17 @@ class AllocationModel(ABC):
         return self.trade_order(direction, features, usd, btc)
     
 
-class TradingModel(ABC):
+class TradingModel():
     """Base class for models that will make trades
     """
-    def __init__(self,signal_model: SignalModel, allocation_model: AllocationModel, price_col: str = 'Open') -> None:
+    def __init__(self,signal_model: SignalModel, allocation_model: AllocationModel) -> None:
         self.usd = STARTING_MONEY
         self.btc = 0
         self.signal_model = signal_model
         self.allocation_model = allocation_model
-        self.price_col = price_col
 
     def __call__(self, features: DataFrame) -> None:
-        return self.run_model(DataFrame)
+        return self.run_model(features)
 
     def update_reserves(self, trade:float, price:float) -> None:
         """"Updates usd and btc amount
@@ -56,7 +56,7 @@ class TradingModel(ABC):
         """
         signal = self.signal_model(features,self.usd,self.btc)
         trade = self.allocation_model(signal,features,self.usd,self.btc)
-        self.update_reserves(trade,features[self.price_col])
+        self.update_reserves(trade,features[PRICE_COLUMN])
     
     @property
     def usd(self):
@@ -78,8 +78,8 @@ class TradingModel(ABC):
             raise ValueError(f"Can't set negative value {new_btc} for bitcoin allocation")
         self._btc = new_btc
 
-class MachineLearningModel(TradingModel):
-    """Base class for trading models that use Machine Learning
+class MachineLearningSignal(Signal):
+    """Base class for models that use Machine Learning to decide wether to buy, sell or hold
     """
     @abstractmethod
     def train_model(self, training_data: DataFrame,**kwargs) -> None:
