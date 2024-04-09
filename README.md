@@ -12,3 +12,15 @@ Disclaimer: this is not an endorsement of cryptocurrency or any trading strategy
     3. Implement 3 machine learning models
     4. Compare using various parameters
     5. Make real-time decisions by making API calls 
+
+## Software Architecture and Design
+
+I have identified a problem in the BuySellModel class: if the trade_signal method changes state used by the trade_order method or vice-versa, this adds complexity and potentially unwanted behavior. So I want to delegate these two methods to different classes, and orchestrate the two objects using BuySellModel
+
+### Diagrams
+
+To-Do:
+
+    1. Class Diagram
+    2. Sequence Diagram
+    3. Use-case Diagram
