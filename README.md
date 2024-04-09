@@ -15,7 +15,7 @@ Disclaimer: this is not an endorsement of cryptocurrency or any trading strategy
 
 ## Software Architecture and Design
 
-I have identified a problem in the BuySellModel class: if the trade_signal method changes state used by the trade_order method or vice-versa, this adds complexity and potentially unwanted behavior. So I want to delegate these two methods to different classes, and orchestrate the two objects using BuySellModel
+Initially, I had one class containing methods for deciding when to buy, and another method deciding how much to buy. However, I realized that when both of these metehods change atributes of the class, this can add a bunch of complexity and unwanted behavior. So I refactored to delegate this to two objects: a signal modeling object, and an allocation object. This also opened up an easy way to re-use allocation strategies, specially when using Machine Learning models, since this decision doesn't depend on the type of model being used.
 
 ### Diagrams
 
