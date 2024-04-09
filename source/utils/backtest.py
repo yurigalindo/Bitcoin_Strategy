@@ -1,61 +1,52 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from source.models.abstract_classes import BuySellModel
+from source.models.central_model import TradingModel
+from typing import Literal
+from source.models.central_model import PRICE_COLUMN
+
 
 class BacktestTradeModels():
-    def __init__(self,csv: str, start_date = None, end_date = None):
-        self.data = pd.read_csv(csv)
+    def __init__(self,csv: str | pd.DataFrame, start_date = None, end_date = None):
+        if isinstance(csv,str):
+            self.data = pd.read_csv(csv)
+        else:
+            self.data = csv
         if start_date:
             self.data = self.data[self.data['Date'] >= start_date]
         if end_date:
             self.data = self.data[self.data['Date'] <= end_date]
     
-    def __call__(self, model: BuySellModel) -> float:
-        self.plot(model)
-        model.reset_model()
-        return self.backtest(model)
-
-    def plot(self, model: BuySellModel) -> None:
-        self.plot_signals(model)
-        self.plot_btc(model)
-        self.plot_usd(model)
-
-    def backtest(self, model: BuySellModel) -> float:
-        model.reset_model()
+    def __call__(self, model: TradingModel, plot: Literal['complete','signal','usd','btc','none']='complete') -> float:
+        """Evaluates the model, and optionally plots model decision and currency evolution
+        """
+        signals = []
+        usds = []
+        btcs = []
         for _,row in self.data.iterrows():
-            model.run_model(row['Open'])
-        if model.btc != 0:
-            # Sell remaining btc
-            model.usd = model.btc*row['Open']
-            model.btc = 0
-        return model.usd
+            print(row)
+            signals.append(model(row))
+            usds.append(model.usd)
+            btcs.append(model.btc)
+        if plot == 'complete' or plot == 'signal':
+            self.plot_signals(signals)
+        if plot == 'complete' or plot == 'usd':
+            self.plot_funds(usds,currency='USD')
+        if plot == 'complete' or plot == 'btc':
+            self.plot_funds(usds,currency='BTC')
+        return self.compute_profit(model)
+
+    def compute_profit(self, model: TradingModel) -> float:
+        return model.usd + model.btc*self.data[PRICE_COLUMN][-1] # Cash + btc at last price
     
-    def plot_signals(self, model: BuySellModel) -> None:
-        model.reset_model()
-        for i,row in self.data.iterrows():
-            signal = model.trade_signal(row['Open']).value
+    def plot_signals(self, signals: list) -> None:
+        for i,signal in enumerate(signals):
             mark = ['.','^','v'][signal]
             color = ['gray','green','red'][signal]
             plt.title("Buy or Sell Signals")
-            plt.plot(i,row['Open'],color=color,marker=mark)
+            plt.plot(i,self.data['Open'][i],color=color,marker=mark)
         plt.figure()
     
-    def plot_usd(self, model: BuySellModel) -> None:
-        model.reset_model()
-        usd = []
-        for _,row in self.data.iterrows():
-            model.run_model(row['Open'])
-            usd.append(model.usd)
-        plt.title("USD reserve evolution")
-        plt.plot(usd)
-        plt.figure()
-
-    def plot_btc(self, model: BuySellModel) -> None:
-        model.reset_model()
-        btc = []
-        for _,row in self.data.iterrows():
-            model.run_model(row['Open'])
-            btc.append(model.btc)
-        plt.title("Allocated BTC evolution")
-        plt.plot(btc)
+    def plot_funds(self,funds: list, currency: str) -> None:
+        plt.title(f"Evolution of {currency}")
+        plt.plot(funds)
         plt.figure()
