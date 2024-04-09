@@ -1,5 +1,5 @@
 from pandas import DataFrame
-from source.models.abstract_classes import DataPreprocessing
+from source.utils.abstract_classes import DataPreprocessing
 
 class ComposePreprocessing(DataPreprocessing):
     def __init__(self,steps: list = None, drop_na: bool = True):
