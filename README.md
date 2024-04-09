@@ -1,7 +1,7 @@
 # Bitcoin Buying and Selling Strategies
 
 This is a toy project that aims to build and compare trading models for buying and selling bitcoin.
-My goal is to practice software architecture and design, and OOP in python.
+My goal is to practice software architecture and design, and OOP in python. Possibly improve my skill in time-series forecasting along the way.
 
 Disclaimer: this is not an endorsement of cryptocurrency or any trading strategy, just programming practice. Following any of these strategies may result in financial loss.
 
