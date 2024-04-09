@@ -7,5 +7,5 @@ class AllInAllOut(AllocationModel):
         if direction == Signal.HOLD:
             return 0
         if direction == Signal.BUY:
-            return self.usd/features[PRICE_COLUMN] # Buy all in
-        return -self.btc # Sell all
+            return usd/features[PRICE_COLUMN] # Buy all in
+        return -btc # Sell all

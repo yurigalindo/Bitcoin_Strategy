@@ -1,16 +1,17 @@
 from source.models.abstract_classes import Signal, SignalModel
+from source.models.central_model import PRICE_COLUMN
 
 class TrailLoss(SignalModel):
-    def __init__(self,ratio_tolerance: float,ratio_sell: float,threshold: float = None,when_to_buy: float = 0.33):
+    def __init__(self,ratio_tolerance: float,threshold: float = None,when_to_buy: float = 0.33):
         super().__init__()
         self.tolerance = ratio_tolerance
-        self.ratio_sell = ratio_sell
         self.buy = when_to_buy
         self.threshold = threshold
         self.peak = None
         self.buy_price = 0
 
-    def trade_signal(self, price: float) -> Signal:
+    def trade_signal(self, features,usd,btc) -> Signal:
+        price = features[PRICE_COLUMN]
         if self.peak is None:
             if self.buy_price == 0:
                 self.peak = price

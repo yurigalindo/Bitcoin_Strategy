@@ -1,4 +1,4 @@
-from abstract_classes import SignalModel, AllocationModel
+from source.models.abstract_classes import SignalModel, AllocationModel, Signal
 from pandas import DataFrame
 
 STARTING_MONEY = 100
@@ -23,12 +23,13 @@ class TradingModel():
         self.usd -= trade*price
         self.btc += trade
 
-    def run_model(self, features: DataFrame) -> None:
-        """"Obtains signal, uses the signal to make a trade, and updates reserves
+    def run_model(self, features: DataFrame) -> Signal:
+        """"Obtains signal, uses the signal to make a trade, and updates reserves. Returns the signal
         """
         signal = self.signal_model(features,self.usd,self.btc)
         trade = self.allocation_model(signal,features,self.usd,self.btc)
         self.update_reserves(trade,features[PRICE_COLUMN])
+        return signal
     
     @property
     def usd(self):

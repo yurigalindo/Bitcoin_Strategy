@@ -23,8 +23,7 @@ class BacktestTradeModels():
         usds = []
         btcs = []
         for _,row in self.data.iterrows():
-            print(row)
-            signals.append(model(row))
+            signals.append(model(row).value)
             usds.append(model.usd)
             btcs.append(model.btc)
         if plot == 'complete' or plot == 'signal':
@@ -32,18 +31,18 @@ class BacktestTradeModels():
         if plot == 'complete' or plot == 'usd':
             self.plot_funds(usds,currency='USD')
         if plot == 'complete' or plot == 'btc':
-            self.plot_funds(usds,currency='BTC')
+            self.plot_funds(btcs,currency='BTC')
         return self.compute_profit(model)
 
     def compute_profit(self, model: TradingModel) -> float:
-        return model.usd + model.btc*self.data[PRICE_COLUMN][-1] # Cash + btc at last price
+        return model.usd + model.btc*self.data[PRICE_COLUMN].iloc[-1] # Cash + btc at last price
     
     def plot_signals(self, signals: list) -> None:
         for i,signal in enumerate(signals):
             mark = ['.','^','v'][signal]
             color = ['gray','green','red'][signal]
             plt.title("Buy or Sell Signals")
-            plt.plot(i,self.data['Open'][i],color=color,marker=mark)
+            plt.plot(i,self.data['Open'].iloc[i],color=color,marker=mark)
         plt.figure()
     
     def plot_funds(self,funds: list, currency: str) -> None:
