@@ -79,15 +79,11 @@ class MachineLearningModel(BuySellModel):
         """
 
     @abstractmethod
-    def reset_training() -> None:
+    def predict(self, row: DataFrame) -> float:
+        """Predicts on a datapoint
+        """
+        
+    @abstractmethod
+    def reset_training(self) -> None:
         """Resets training of the model
         """
-
-class DataPreprocessing(ABC):
-    @abstractmethod
-    def preprocess_data(self, data: DataFrame) -> DataFrame:
-        """Pre-processes data to add features
-        """
-
-    def __call__(self, data: DataFrame) -> DataFrame:
-        return self.preprocess_data(data)
