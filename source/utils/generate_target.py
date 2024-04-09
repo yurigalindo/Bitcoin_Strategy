@@ -1,6 +1,7 @@
 from pandas import DataFrame
 import pandas as pd
 from source.utils.abstract_classes import GenerateTarget
+from source.models.central_model import PRICE_COLUMN
 
 class MeanDifferenceThreshold(GenerateTarget):
     def __init__(self, days: int, window: int, threshold: float) -> None:
@@ -11,12 +12,12 @@ class MeanDifferenceThreshold(GenerateTarget):
         self.threshold = threshold
 
     def generate_target(self, data: DataFrame) -> DataFrame:
-        data['target'] = data['Open'].rolling(self.window,center=True).mean()
+        data['target'] = data[PRICE_COLUMN].rolling(self.window,center=True).mean()
         data['target'] = data['target'].shift(-self.days)
         def compute_target(row):
-            if row['target'] > (1+self.threshold)*row['Open']:
+            if row['target'] > (1+self.threshold)*row[PRICE_COLUMN]:
                 return 1
-            if row['target'] < (1-self.threshold)*row['Open']:
+            if row['target'] < (1-self.threshold)*row[PRICE_COLUMN]:
                 return -1
             if pd.isna(row['target']):
                 return float('nan')
@@ -33,10 +34,10 @@ class MeanDifferenceBinary(GenerateTarget):
         self.window = window
 
     def generate_target(self, data: DataFrame) -> DataFrame:
-        data['target'] = data['Open'].rolling(self.window,center=True).mean()
+        data['target'] = data[PRICE_COLUMN].rolling(self.window,center=True).mean()
         data['target'] = data['target'].shift(-self.days)
         def compute_target(row):
-            if row['target'] >= row['Open']:
+            if row['target'] >= row[PRICE_COLUMN]:
                 return 1
             if pd.isna(row['target']):
                 return float('nan')
