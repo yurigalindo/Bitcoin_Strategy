@@ -11,15 +11,39 @@ class Signal(Enum):
     SELL = -1
     HOLD = 0
 
-class BuySellModel(ABC):
+
+class SignalModel(ABC):
+    @abstractmethod
+    def trade_signal(self, features: DataFrame, usd: float, btc: float) -> Signal:
+        """Returns a signal for the trade
+        """
+
+    def __call__(self, features: DataFrame, usd: float, btc: float) -> Signal:
+        return self.trade_signal(features,usd,btc)
+
+
+class AllocationModel(ABC):
+    @abstractmethod
+    def trade_order(self, direction:Signal, features: DataFrame, usd: float, btc: float) -> float:
+        """Decides how much to trade for, in btc
+        """
+
+    def __call__(self, direction:Signal, features: DataFrame, usd: float, btc: float) -> float:
+        return self.trade_order(direction, features, usd, btc)
+    
+
+class TradingModel(ABC):
     """Base class for models that will make trades
     """
-    def __init__(self) -> None:
+    def __init__(self,signal_model: SignalModel, allocation_model: AllocationModel, price_col: str = 'Open') -> None:
         self.usd = STARTING_MONEY
         self.btc = 0
+        self.signal_model = signal_model
+        self.allocation_model = allocation_model
+        self.price_col = price_col
 
-    def __call__(self, price: float) -> None:
-        return self.run_model(price)
+    def __call__(self, features: DataFrame) -> None:
+        return self.run_model(DataFrame)
 
     def update_reserves(self, trade:float, price:float) -> None:
         """"Updates usd and btc amount
@@ -27,29 +51,13 @@ class BuySellModel(ABC):
         self.usd -= trade*price
         self.btc += trade
 
-    def run_model(self, price: float) -> None:
+    def run_model(self, features: DataFrame) -> None:
         """"Obtains signal, uses the signal to make a trade, and updates reserves
         """
-        signal = self.trade_signal(price)
-        trade = self.trade_order(signal, price)
-        self.update_reserves(trade,price)
-
-    def reset_model(self) -> None:
-        """Resets model to re-start trading from scratch
-        """
-        self.usd = STARTING_MONEY
-        self.btc = 0
-
-    @abstractmethod
-    def trade_signal(self, price:float ) -> Signal:
-        """Returns a signal for the trade
-        """
+        signal = self.signal_model(features,self.usd,self.btc)
+        trade = self.allocation_model(signal,features,self.usd,self.btc)
+        self.update_reserves(trade,features[self.price_col])
     
-    @abstractmethod
-    def trade_order(self, direction:Signal, price: float) -> float:
-        """Decides how much to trade for, in btc
-        """
-
     @property
     def usd(self):
         return self._usd
@@ -69,8 +77,8 @@ class BuySellModel(ABC):
         if new_btc < NEGATIVE_TOLERANCE:
             raise ValueError(f"Can't set negative value {new_btc} for bitcoin allocation")
         self._btc = new_btc
-        
-class MachineLearningModel(BuySellModel):
+
+class MachineLearningModel(TradingModel):
     """Base class for trading models that use Machine Learning
     """
     @abstractmethod
@@ -79,11 +87,6 @@ class MachineLearningModel(BuySellModel):
         """
 
     @abstractmethod
-    def predict(self, row: DataFrame) -> float:
-        """Predicts on a datapoint
-        """
-        
-    @abstractmethod
-    def reset_training(self) -> None:
-        """Resets training of the model
+    def predict(self, features: DataFrame) -> float:
+        """Predicts on one or multiple datapoints
         """
