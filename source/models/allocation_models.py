@@ -1,5 +1,6 @@
 from pandas import DataFrame
-from source.models.abstract_classes import AllocationModel, Signal, PRICE_COLUMN
+from source.models.abstract_classes import AllocationModel, Signal
+from source.models.central_model import PRICE_COLUMN
 
 class AllInAllOut(AllocationModel):
     def trade_order(self, direction: Signal, features: DataFrame, usd: float, btc: float,) -> float:

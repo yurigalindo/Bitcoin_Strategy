@@ -1,7 +1,6 @@
-from source.models.abstract_classes import BuySellModel
-from source.models.abstract_classes import Signal
+from source.models.abstract_classes import Signal, SignalModel
 
-class TrailLoss(BuySellModel):
+class TrailLoss(SignalModel):
     def __init__(self,ratio_tolerance: float,ratio_sell: float,threshold: float = None,when_to_buy: float = 0.33):
         super().__init__()
         self.tolerance = ratio_tolerance
@@ -11,11 +10,6 @@ class TrailLoss(BuySellModel):
         self.peak = None
         self.buy_price = 0
 
-    def reset_model(self) -> None:
-        super().reset_model()
-        self.buy_price = 0
-        self.peak = None
-    
     def trade_signal(self, price: float) -> Signal:
         if self.peak is None:
             if self.buy_price == 0:
@@ -40,14 +34,6 @@ class TrailLoss(BuySellModel):
             # Price dropped enough to sell
             return Signal.SELL
         return Signal.HOLD
-    
-    def trade_order(self, direction: Signal, price: float) -> float:
-        if direction == Signal.HOLD:
-            return 0
-        if direction == Signal.BUY:
-            return self.usd/price # Buy all in
-        return -self.btc*self.ratio_sell # Sell defined ratio
-    
     
         
 
